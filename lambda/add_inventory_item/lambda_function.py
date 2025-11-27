@@ -24,7 +24,7 @@ def lambda_handler(event, context):
         # Convert numeric types properly for DynamoDB
         item_qty_on_hand = int(data["item_qty_on_hand"])
         item_price = Decimal(str(data["item_price"]))
-        item_location_id = int(data["item_location_id"])
+        item_location_id = str(data["item_location_id"])
 
         table.put_item(
             Item={

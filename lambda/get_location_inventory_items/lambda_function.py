@@ -1,10 +1,10 @@
 import boto3
 import json
+from boto3.dynamodb.conditions import Attr
 
 def lambda_handler(event, context):
-    dynamo_client = boto3.client("dynamodb")
-    table_name = "Inventory"
-    index_name = "GSI_Location"  # Make sure this matches your actual GSI name
+    dynamodb = boto3.resource("dynamodb")
+    table = dynamodb.Table("Inventory")
 
     # Extract the location_id from path parameters
     if "pathParameters" not in event or "id" not in event["pathParameters"]:
@@ -13,22 +13,18 @@ def lambda_handler(event, context):
             "body": json.dumps("Missing 'id' path parameter (location_id)")
         }
 
+    # Keep as string to match how it's stored
     location_id = event["pathParameters"]["id"]
 
-    # Query the GSI by item_location_id
     try:
-        response = dynamo_client.query(
-            TableName=table_name,
-            IndexName=index_name,
-            KeyConditionExpression="item_location_id = :loc",
-            ExpressionAttributeValues={
-                ":loc": {"N": str(location_id)}
-            }
+        # Scan and filter by item_location_id
+        response = table.scan(
+            FilterExpression=Attr("item_location_id").eq(location_id)
         )
 
         items = response.get("Items", [])
 
-        if len(items) == 0:
+        if not items:
             return {
                 "statusCode": 404,
                 "body": json.dumps(f"No items found for location_id {location_id}")
@@ -44,4 +40,3 @@ def lambda_handler(event, context):
             "statusCode": 500,
             "body": json.dumps(f"Error querying items: {str(e)}")
         }
-    

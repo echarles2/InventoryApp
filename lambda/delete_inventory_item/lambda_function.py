@@ -35,7 +35,7 @@ def lambda_handler(event, context):
 
         # DynamoDB needs both keys: item_id AND item_location_id
         item = items[0]
-        location_id = item["item_location_id"]["N"]
+        location_id = item["item_location_id"]["S"]
 
     except Exception as e:
         return {

@@ -35,4 +35,3 @@ jobs:
           FIX_HTML_PRETTIER: true
           FIX_PYTHON_BLACK: true
           FIX_YAML_PRETTIER: true
-dev
